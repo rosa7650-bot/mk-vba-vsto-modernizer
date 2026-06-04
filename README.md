@@ -1,4 +1,4 @@
-# claude-skill-vba-modernizer
+﻿# claude-skill-vba-modernizer
 
 A Claude Code skill for modernizing Excel VBA / VSTO systems to modern API-first architecture.
 
@@ -13,7 +13,7 @@ Guides you through a structured **4-phase modernization process**:
 ```
 Phase 1 Discovery  →  Phase 2 Plan  →  Phase 3 API Transform  →  Phase 4 Frontend UI
    Extract VBA           Migration          P1 Foundation              UserForms
-   Analyse risk          plan               P2 Lookup APIs             → React
+   Analyse risk          plan               P2 Lookup APIs             → Vue 3
    Identify DBs          API contract       P3 Core Query
    Map modules           D1–D5 decisions    P4 Edit/Write
                          Flow diagram       P5 Validate/Import
@@ -76,7 +76,7 @@ Builds all backend API endpoints in 6 sub-steps:
 | P6 | Export + Integrations | File output + external systems |
 
 ### Phase 4 — Frontend UI
-Replaces UserForms and Worksheet events with React components.
+Replaces UserForms and Worksheet events with Vue 3 components.
 **Only starts after all Phase 3 API tests pass.**
 
 ---
@@ -96,7 +96,7 @@ project/
 │   │   ├── services/         # Business logic from VBA
 │   │   ├── routes/           # API handlers
 │   │   └── tests/            # Integration tests
-│   └── frontend/             # Phase 4: React components
+│   └── frontend/             # Phase 4: Vue 3 components
 └── MIGRATION_REPORT.md       # Phase 3 complete: stats + rollback
 ```
 
@@ -107,7 +107,7 @@ project/
 | File | Contents |
 |---|---|
 | `references/vba-sql-patterns.md` | SQL string concat → parameterized queries (Oracle + SQL Server) |
-| `references/userform-to-react.md` | MSForms controls → React components with code examples |
+| `references/userform-to-vue.md` | MSForms controls → Vue 3 components with code examples |
 
 ---
 
@@ -137,11 +137,11 @@ project/
 Create `.vba-modernizer.yml` in your project root:
 
 ```yaml
-target: react-python       # react-python | react-node | python | node | generic
+target: vue3-python       # vue3-python | vue3-node | python | node | generic
 source: path/to/file.xlsm
 output: migrated/
 decisions:
-  d1: react-python
+  d1: vue3-python
   d2: keep-existing
   d3: xlsx
   d4: localstorage
@@ -157,3 +157,4 @@ test_generation: true
 ## License
 
 MIT
+

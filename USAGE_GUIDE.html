@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
@@ -162,7 +162,7 @@
   <!-- Hero -->
   <div class="hero" id="overview">
     <h1>VBA / VSTO 現代化 Skill</h1>
-    <p>透過 Claude Code 將任何 Excel VBA 或 VSTO 系統，以 API First 策略現代化為 React + Python/Node 架構。全程引導，不需要自己決定下一步。</p>
+    <p>透過 Claude Code 將任何 Excel VBA 或 VSTO 系統，以 API First 策略現代化為 Vue 3 + Python/Node 架構。全程引導，不需要自己決定下一步。</p>
     <div class="hero-chips">
       <span class="chip">適用 <b>.xlsm / .xls / .xlam / .bas / .cls</b></span>
       <span class="chip">任何領域 <b>財務 / HR / 庫存 / 製造</b></span>
@@ -208,9 +208,9 @@
       <div class="tl-item ph4">
         <div class="tl-header">🖥️ Phase 4<br>Frontend UI</div>
         <div class="tl-body"><ul>
-          <li>UserForm → React</li>
+          <li>UserForm → Vue 3</li>
           <li>Worksheet events</li>
-          <li>→ React state</li>
+          <li>→ Vue 3 reactive state</li>
           <li>Workbook → Router</li>
         </ul></div>
       </div>
@@ -343,7 +343,7 @@ claude</pre></div>
     <div class="decisions">
       <div class="decision">
         <div class="d-q">D-1 &nbsp;目標架構？</div>
-        <div class="d-opts"><span class="sel">A) React + Python 後端</span> &nbsp; B) React + Node 後端 &nbsp; C) 純 Python（無 UI）</div>
+        <div class="d-opts"><span class="sel">A) Vue 3 + Python 後端</span> &nbsp; B) Vue 3 + Node 後端 &nbsp; C) 純 Python（無 UI）</div>
       </div>
       <div class="decision">
         <div class="d-q">D-2 &nbsp;資料庫策略？</div>
@@ -451,18 +451,18 @@ claude</pre></div>
 
   <!-- Phase 4 -->
   <div class="section" id="phase4">
-    <h2><span class="p4b">Phase 4</span> Frontend UI — UserForm → React</h2>
-    <p style="color:var(--muted);margin-bottom:1rem">所有商業邏輯留在後端 API，前端 React 只負責顯示與輸入。</p>
+    <h2><span class="p4b">Phase 4</span> Frontend UI — UserForm → Vue 3</h2>
+    <p style="color:var(--muted);margin-bottom:1rem">所有商業邏輯留在後端 API，前端 Vue 3 只負責顯示與輸入。</p>
 
     <table>
-      <thead><tr><th>VBA 來源</th><th>React 元件</th><th>呼叫的 API</th></tr></thead>
+      <thead><tr><th>VBA 來源</th><th>Vue 3 元件</th><th>呼叫的 API</th></tr></thead>
       <tbody>
         <tr><td><code>UserForm</code> + 串聯下拉選單</td><td><code>&lt;QueryForm&gt;</code></td><td>GET /ref/* Reference APIs</td></tr>
         <tr><td><code>UserForm</code> + 資料表格</td><td><code>&lt;DataGrid&gt;</code></td><td>POST /query 核心查詢</td></tr>
         <tr><td><code>UserForm</code> + Submit 按鈕</td><td><code>&lt;SubmitDialog&gt;</code></td><td>POST /validate → POST /import</td></tr>
         <tr><td><code>Worksheet_Change</code> 事件</td><td><code>onChange</code> handler</td><td>POST /rows Edit API</td></tr>
         <tr><td><code>Workbook_Open</code></td><td><code>useEffect</code> on mount</td><td>GET /settings</td></tr>
-        <tr><td><code>CommandBars</code> 工具列</td><td><code>&lt;Navbar&gt;</code> + React Router</td><td>—</td></tr>
+        <tr><td><code>CommandBars</code> 工具列</td><td><code>&lt;Navbar&gt;</code> + Vue Router</td><td>—</td></tr>
         <tr><td><code>MsgBox</code> 確認視窗</td><td><code>&lt;ConfirmDialog&gt;</code></td><td>API 回傳 <code>requires_confirmation</code></td></tr>
         <tr><td><code>MsgBox</code> 批次錯誤</td><td><code>&lt;ErrorList&gt;</code></td><td>API 回傳 <code>errors[]</code></td></tr>
       </tbody>
@@ -506,11 +506,11 @@ claude</pre></div>
     <p style="color:var(--muted);margin-bottom:.8rem">在專案根目錄建立 <code>.vba-modernizer.yml</code> 可略過 D-1 至 D-5 互動問答。</p>
     <div class="code-wrap">
       <div class="code-label">.vba-modernizer.yml</div>
-      <pre><span class="c-key">target</span>: react-python        <span class="c-cmt"># react-python | react-node | python | node</span>
+      <pre><span class="c-key">target</span>: Vue 3-python        <span class="c-cmt"># Vue 3-python | Vue 3-node | python | node</span>
 <span class="c-key">source</span>: original/TEST.XLS
 <span class="c-key">output</span>: migrated/
 <span class="c-key">decisions</span>:
-  <span class="c-key">d1</span>: react-python
+  <span class="c-key">d1</span>: Vue 3-python
   <span class="c-key">d2</span>: keep-existing
   <span class="c-key">d3</span>: xlsx
   <span class="c-key">d4</span>: localstorage
@@ -543,3 +543,4 @@ claude</pre></div>
 </div><!-- /layout -->
 </body>
 </html>
+

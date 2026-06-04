@@ -1,4 +1,4 @@
-# Migration Plan: {{workbook_name}} → Modern Architecture
+﻿# Migration Plan: {{workbook_name}} → Modern Architecture
 
 **Date:** {{YYYY-MM-DD}}
 **Source:** `{{path/to/workbook.xlsm}}`
@@ -71,7 +71,7 @@
 ## Architecture Cut Points
 
 ```
-Frontend (React + TS)          Backend ({{Python/Node}})
+Frontend (Vue 3 + TS)          Backend ({{Python/Node}})
 ─────────────────────          ──────────────────────────
 {{UserForm1}}   ──API──►  {{/api/v1/endpoint}}
 {{UserForm2}}   ──API──►  {{/api/v1/endpoint}}
@@ -97,3 +97,4 @@ Frontend (React + TS)          Backend ({{Python/Node}})
 **Status:** [ ] Pending  [ ] Approved  [ ] Needs revision
 
 **Notes:** _____
+

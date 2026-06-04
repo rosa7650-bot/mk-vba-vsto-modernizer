@@ -1,6 +1,6 @@
----
+﻿---
 name: vba-modernizer
-description: Modernize any Excel VBA or VSTO codebase to a modern API-first architecture. Works on .xlsm, .xls, .xlam, .bas, .cls, .frm, or any exported VBA source. Produces a visual 4-phase modernization plan (MODERNIZATION_FLOW.html), a migration plan (MIGRATION_PLAN.md), and a complete API contract (API_PLAN.html) before writing a single line of migrated code. Use when the user asks to modernize, rewrite, migrate, or get off Excel VBA — for any domain (packing lists, finance, HR, inventory, manufacturing, etc.).
+description: Modernize any Excel VBA or VSTO codebase to a modern API-first architecture. Works on .xlsm, .xls, .xlam, .bas, .cls, .frm, or any exported VBA source. Produces a visual 4-phase modernization plan (MODERNIZATION_FLOW.html), a migration plan (MIGRATION_PLAN.md), and a complete API contract (API_PLAN.html) before writing a single line of migrated code. Target frontend is Vue 3 + TypeScript. Use when the user asks to modernize, rewrite, migrate, or get off Excel VBA — for any domain (packing lists, finance, HR, inventory, manufacturing, etc.).
 ---
 
 # VBA / VSTO Modernizer
@@ -27,9 +27,9 @@ Phase 1          Phase 2          Phase 3               Phase 4
 DISCOVERY   →    PLAN        →    API TRANSFORM    →    FRONTEND UI
 ─────────────    ────────────     ─────────────────     ────────────
 Extract VBA      Migration        P1 Foundation         UserForms
-Analyse risk     plan             P2 Lookup APIs        → React
+Analyse risk     plan             P2 Lookup APIs        → Vue 3
 Identify DBs     API contract     P3 Core Query         Worksheet events
-Map modules      Decisions        P4 Edit/Write         → React state
+Map modules      Decisions        P4 Edit/Write         → Vue 3 reactive state
                  D1–D5           P5 Validate/Import     Workbook init
                  Flow diagram     P6 Export/EDI         → App routing
 ```
@@ -156,7 +156,7 @@ Ask the user directly — present options, wait for answers.
 
 | # | Decision | Options |
 |---|---|---|
-| **D-1** | Target architecture | A) React + Python backend &nbsp; B) React + Node backend &nbsp; C) Pure Python / Node (no UI) &nbsp; D) Other |
+| **D-1** | Target architecture | A) Vue 3 + Python backend &nbsp; B) Vue 3 + Node backend &nbsp; C) Pure Python / Node (no UI) &nbsp; D) Other |
 | **D-2** | Database strategy | A) Keep all existing DBs &nbsp; B) Migrate to single DB (separate project) &nbsp; C) Keep reads, migrate writes |
 | **D-3** | Primary output format | A) Keep generating files (.xlsx / .txt / .csv) &nbsp; B) Web UI display + print/PDF &nbsp; C) Both |
 | **D-4** | User settings storage (replaces Windows Registry) | A) Browser localStorage &nbsp; B) Backend DB table &nbsp; C) Config file (YAML/JSON) |
@@ -213,7 +213,7 @@ Produce a 4-column visual flow diagram as an HTML file with:
 - **Column 1 — Discovery**: status = ✓ Done (if inventory.json exists)
 - **Column 2 — Plan**: status = ✓ Done (once MIGRATION_PLAN.md approved)
 - **Column 3 — API Transform**: status = → Next, showing P1–P6 sub-steps with module names
-- **Column 4 — Frontend UI**: status = Pending, showing UserForm → React mapping
+- **Column 4 — Frontend UI**: status = Pending, showing UserForm → Vue 3 mapping
 
 Each column shows:
 - Phase number and name
@@ -377,20 +377,20 @@ Before moving to Phase 4:
 
 > **Gate:** All Phase 3 API tests must pass. Do not start UI until backend is verified.
 
-Map every VBA UserForm and Worksheet event to a React component:
+Map every VBA UserForm and Worksheet event to a Vue 3 component:
 
-| VBA Artifact | React Target | Notes |
+| VBA Artifact | Vue 3 Target | Notes |
 |---|---|---|
 | UserForm + ComboBox/ListBox | `<SelectForm>` with cascading state | Calls Reference APIs on change |
 | UserForm + DataGrid / ListBox showing records | `<DataGrid>` component | Calls Core Query API |
 | UserForm + Submit button | `<SubmitDialog>` with validation display | Calls Validate then Import API |
-| Worksheet_Change event | React `onChange` handler | Calls Edit API |
-| Worksheet_SelectionChange | React `onFocus` / controlled input | Local state only if possible |
+| Worksheet_Change event | Vue 3 `@change` handler | Calls Edit API |
+| Worksheet_SelectionChange | Vue 3 `@focus` / controlled input | Local state only if possible |
 | Workbook_Open | `useEffect` on app mount | Calls Settings API |
-| CommandBars / custom toolbars | `<Navbar>` + React Router | Route per major function |
+| CommandBars / custom toolbars | `<Navbar>` + Vue Router | Route per major function |
 
 **UI rules:**
-- Zero business logic in React components — display and input only
+- Zero business logic in Vue 3 components — display and input only
 - `MsgBox` confirmations → `<ConfirmDialog>` consuming `requires_confirmation` from API
 - `MsgBox` batch errors → `<ValidationErrorList>` consuming `errors[]`
 - Windows Registry `GetSetting/SaveSetting` → `localStorage` (D-4 A) or `GET/PUT /settings` (D-4 B)
@@ -433,7 +433,7 @@ Map every VBA UserForm and Worksheet event to a React component:
 If the project has `.vba-modernizer.yml`, honour it:
 
 ```yaml
-target: react-python | react-node | python | node | generic
+target: Vue 3-python | Vue 3-node | python | node | generic
 source: path/to/file.xlsm          # or directory of .bas/.cls files
 output: migrated/
 databases:
@@ -444,7 +444,7 @@ databases:
     type: sqlserver
     env_var: DW_CONN_STRING
 decisions:
-  d1: react-python
+  d1: Vue 3-python
   d2: keep-existing
   d3: xlsx
   d4: localstorage
@@ -469,3 +469,4 @@ test_generation: true
 - **Never inline-translate Excel formulas.** `=SUMPRODUCT(...)` → named function with unit test.
 - **Never claim a phase complete with unresolved CRITICAL items in REVIEW_QUEUE.md.**
 - **Always stop at D-1 to D-5 and at each phase gate. Never skip approvals.**
+
