@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>使用說明 — mk-vba-vsto-modernizer</title>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --surface2: #21262d; --border: #30363d;
+    --text: #c9d1d9; --muted: #8b949e;
+    --blue: #58a6ff; --purple: #bc8cff; --green: #3fb950; --orange: #f0883e;
+    --red: #f85149; --teal: #39d3c3; --yellow: #e3b341;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, 'Segoe UI', sans-serif; line-height: 1.7; }
+
+  /* Layout */
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 240px; min-width: 240px; background: var(--surface);
+    border-right: 1px solid var(--border); padding: 1.5rem 0;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  }
+  .sidebar-logo { padding: .5rem 1.2rem 1.2rem; border-bottom: 1px solid var(--border); margin-bottom: .8rem; }
+  .sidebar-logo .name { font-size: .85rem; font-weight: 700; color: #fff; }
+  .sidebar-logo .ver  { font-size: .7rem; color: var(--muted); margin-top: .1rem; }
+  .nav-section { padding: .4rem 1.2rem .2rem; font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+  .nav-item { display: block; padding: .3rem 1.2rem .3rem 1.6rem; font-size: .82rem; color: var(--muted); text-decoration: none; border-left: 2px solid transparent; }
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active { color: var(--blue); border-left-color: var(--blue); }
+
+  .main { flex: 1; padding: 3rem 3.5rem; max-width: 900px; }
+
+  /* Hero */
+  .hero { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+  .hero h1 { font-size: 1.8rem; font-weight: 800; color: #fff; margin-bottom: .5rem; }
+  .hero p { color: var(--muted); font-size: 1rem; max-width: 600px; }
+  .hero-chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+  .chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: .2rem .75rem; font-size: .75rem; color: var(--muted); }
+  .chip b { color: var(--text); }
+
+  /* Section */
+  .section { margin-bottom: 3.5rem; scroll-margin-top: 1rem; }
+  .section h2 { font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: .5rem; }
+  .section h3 { font-size: .95rem; font-weight: 700; color: var(--text); margin: 1.5rem 0 .6rem; }
+
+  /* Phase timeline */
+  .timeline { display: flex; gap: 0; margin: 1.5rem 0; overflow-x: auto; }
+  .tl-item { flex: 1; min-width: 140px; }
+  .tl-header { padding: .6rem .8rem; border-radius: var(--radius) var(--radius) 0 0; text-align: center; font-size: .78rem; font-weight: 700; }
+  .tl-body { padding: .7rem .8rem; border-radius: 0 0 var(--radius) var(--radius); font-size: .75rem; color: var(--muted); border: 1px solid var(--border); border-top: none; }
+  .tl-body li { margin-bottom: .25rem; padding-left: .8rem; position: relative; }
+  .tl-body li::before { content: '·'; position: absolute; left: 0; color: var(--muted); }
+  .tl-arrow { display: flex; align-items: center; padding-bottom: 40px; color: var(--border); font-size: 1.2rem; padding: 0 .3rem; padding-bottom: 36px; }
+  .ph1 .tl-header { background: rgba(88,166,255,.15); color: var(--blue); border: 1px solid rgba(88,166,255,.3); border-bottom: none; }
+  .ph2 .tl-header { background: rgba(188,140,255,.15); color: var(--purple); border: 1px solid rgba(188,140,255,.3); border-bottom: none; }
+  .ph3 .tl-header { background: rgba(63,185,80,.15); color: var(--green); border: 1px solid rgba(63,185,80,.3); border-bottom: none; }
+  .ph4 .tl-header { background: rgba(240,136,62,.15); color: var(--orange); border: 1px solid rgba(240,136,62,.3); border-bottom: none; }
+
+  /* Code block */
+  .code-wrap { margin: .6rem 0; }
+  .code-label { font-size: .7rem; color: var(--muted); background: var(--surface2); border: 1px solid var(--border); border-bottom: none; padding: .25rem .75rem; border-radius: 6px 6px 0 0; display: inline-block; }
+  pre { background: var(--surface2); border: 1px solid var(--border); border-radius: 0 6px 6px 6px; padding: 1rem 1.2rem; font-family: 'Consolas', 'Fira Code', monospace; font-size: .82rem; overflow-x: auto; white-space: pre; }
+  .code-wrap.no-label pre { border-radius: 6px; }
+  .c-cmd  { color: var(--teal); }
+  .c-str  { color: var(--yellow); }
+  .c-cmt  { color: var(--muted); font-style: italic; }
+  .c-key  { color: var(--purple); }
+  .c-ok   { color: var(--green); }
+  .c-warn { color: var(--orange); }
+  .c-err  { color: var(--red); }
+  .c-path { color: var(--blue); }
+
+  /* Chat simulation */
+  .chat { display: flex; flex-direction: column; gap: .75rem; margin: 1rem 0; }
+  .msg { display: flex; gap: .75rem; align-items: flex-start; }
+  .msg.user { flex-direction: row-reverse; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; }
+  .av-user { background: rgba(88,166,255,.2); color: var(--blue); border: 1px solid rgba(88,166,255,.3); }
+  .av-claude { background: rgba(188,140,255,.2); color: var(--purple); border: 1px solid rgba(188,140,255,.3); }
+  .bubble { padding: .7rem 1rem; border-radius: 10px; max-width: 540px; font-size: .85rem; line-height: 1.6; }
+  .bubble-user { background: rgba(88,166,255,.1); border: 1px solid rgba(88,166,255,.2); }
+  .bubble-claude { background: var(--surface2); border: 1px solid var(--border); }
+  .bubble code { font-family: monospace; background: rgba(255,255,255,.07); padding: .1em .3em; border-radius: 3px; font-size: .88em; }
+  .bubble pre { background: rgba(0,0,0,.3); border: 1px solid var(--border); border-radius: 6px; padding: .6rem .8rem; margin-top: .5rem; font-family: monospace; font-size: .78rem; overflow-x: auto; }
+
+  /* Decision cards */
+  .decisions { display: flex; flex-direction: column; gap: .5rem; margin: .8rem 0; }
+  .decision { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: .75rem 1rem; font-size: .85rem; }
+  .decision .d-q { color: var(--text); font-weight: 600; margin-bottom: .4rem; }
+  .decision .d-opts { color: var(--muted); font-size: .8rem; }
+  .decision .d-opts .sel { color: var(--green); font-weight: 700; }
+
+  /* Output list */
+  .output-box { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.2rem; margin: .8rem 0; }
+  .output-box .out-title { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .6rem; }
+  .out-file { display: flex; align-items: center; gap: .6rem; padding: .3rem 0; font-size: .83rem; border-bottom: 1px solid var(--border); }
+  .out-file:last-child { border-bottom: none; }
+  .out-icon { font-size: .9rem; }
+  .out-name { font-family: monospace; color: var(--blue); }
+  .out-desc { color: var(--muted); font-size: .75rem; margin-left: auto; }
+
+  /* Step badge */
+  .p-badge { display: inline-block; padding: .15rem .55rem; border-radius: 4px; font-size: .72rem; font-weight: 700; margin-right: .4rem; }
+  .p1b { background: rgba(88,166,255,.15); color: var(--blue); }
+  .p2b { background: rgba(188,140,255,.15); color: var(--purple); }
+  .p3b { background: rgba(63,185,80,.15); color: var(--green); }
+  .p4b { background: rgba(240,136,62,.15); color: var(--orange); }
+
+  /* Note / warn */
+  .note { background: rgba(88,166,255,.06); border: 1px solid rgba(88,166,255,.2); border-radius: 8px; padding: .7rem 1rem; font-size: .83rem; margin: .8rem 0; }
+  .note strong { color: var(--blue); }
+  .warn { background: rgba(240,136,62,.06); border: 1px solid rgba(240,136,62,.25); border-radius: 8px; padding: .7rem 1rem; font-size: .83rem; margin: .8rem 0; }
+  .warn strong { color: var(--orange); }
+
+  /* Install steps */
+  .install-steps { counter-reset: step; display: flex; flex-direction: column; gap: .75rem; }
+  .install-step { display: flex; gap: 1rem; align-items: flex-start; }
+  .install-step::before { counter-increment: step; content: counter(step); background: var(--blue); color: #0d1117; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 800; flex-shrink: 0; margin-top: .1rem; }
+  .install-step .step-body { flex: 1; }
+  .install-step .step-title { font-weight: 600; font-size: .88rem; margin-bottom: .3rem; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; margin: .8rem 0; }
+  th { background: var(--surface2); color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; padding: .5rem .8rem; text-align: left; border-bottom: 1px solid var(--border); }
+  td { padding: .55rem .8rem; border-bottom: 1px solid #1e2232; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  code { font-family: 'Consolas', monospace; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: .1em .35em; font-size: .84em; color: var(--purple); }
+
+  @media (max-width: 800px) { .sidebar { display: none; } .main { padding: 1.5rem; } }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="name">mk-vba-vsto-modernizer</div>
+    <div class="ver">Claude Code Skill &nbsp;·&nbsp; v1.0</div>
+  </div>
+  <div class="nav-section">入門</div>
+  <a class="nav-item active" href="#overview">概覽</a>
+  <a class="nav-item" href="#install">安裝</a>
+  <a class="nav-item" href="#prerequisite">前置條件</a>
+  <div class="nav-section">使用流程</div>
+  <a class="nav-item" href="#start">啟動 Skill</a>
+  <a class="nav-item" href="#phase1">Phase 1 — Discovery</a>
+  <a class="nav-item" href="#phase2">Phase 2 — Plan</a>
+  <a class="nav-item" href="#phase3">Phase 3 — API Transform</a>
+  <a class="nav-item" href="#phase4">Phase 4 — Frontend UI</a>
+  <div class="nav-section">參考</div>
+  <a class="nav-item" href="#outputs">所有產出物</a>
+  <a class="nav-item" href="#config">設定檔</a>
+  <a class="nav-item" href="#faq">FAQ</a>
+</nav>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Hero -->
+  <div class="hero" id="overview">
+    <h1>VBA / VSTO 現代化 Skill</h1>
+    <p>透過 Claude Code 將任何 Excel VBA 或 VSTO 系統，以 API First 策略現代化為 React + Python/Node 架構。全程引導，不需要自己決定下一步。</p>
+    <div class="hero-chips">
+      <span class="chip">適用 <b>.xlsm / .xls / .xlam / .bas / .cls</b></span>
+      <span class="chip">任何領域 <b>財務 / HR / 庫存 / 製造</b></span>
+      <span class="chip">輸出 <b>API Plan + 程式碼</b></span>
+    </div>
+  </div>
+
+  <!-- 四大階段 -->
+  <div class="section">
+    <div class="timeline">
+      <div class="tl-item ph1">
+        <div class="tl-header">🔬 Phase 1<br>Discovery</div>
+        <div class="tl-body"><ul>
+          <li>提取 VBA 原始碼</li>
+          <li>分析模組風險</li>
+          <li>識別資料庫</li>
+          <li>產出 SYSTEM_PROFILE</li>
+        </ul></div>
+      </div>
+      <div class="tl-arrow">→</div>
+      <div class="tl-item ph2">
+        <div class="tl-header">📋 Phase 2<br>Plan</div>
+        <div class="tl-body"><ul>
+          <li>D-1 至 D-5 決策</li>
+          <li>遷移計畫文件</li>
+          <li>API 端點清單</li>
+          <li>四階段流程圖</li>
+        </ul></div>
+      </div>
+      <div class="tl-arrow">→</div>
+      <div class="tl-item ph3">
+        <div class="tl-header">⚙️ Phase 3<br>API Transform</div>
+        <div class="tl-body"><ul>
+          <li>P1 DB 連線層</li>
+          <li>P2 Lookup APIs</li>
+          <li>P3 核心查詢</li>
+          <li>P4 編輯寫入</li>
+          <li>P5 驗證匯入</li>
+          <li>P6 匯出整合</li>
+        </ul></div>
+      </div>
+      <div class="tl-arrow">→</div>
+      <div class="tl-item ph4">
+        <div class="tl-header">🖥️ Phase 4<br>Frontend UI</div>
+        <div class="tl-body"><ul>
+          <li>UserForm → React</li>
+          <li>Worksheet events</li>
+          <li>→ React state</li>
+          <li>Workbook → Router</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 安裝 -->
+  <div class="section" id="install">
+    <h2>🔧 安裝</h2>
+
+    <h3>全域安裝（所有專案都能用）</h3>
+    <div class="code-wrap">
+      <div class="code-label">bash / PowerShell</div>
+      <pre><span class="c-cmt"># Clone skill 到全域目錄</span>
+git clone https://github.com/rosa7650-bot/mk-vba-vsto-modernizer.git <span class="c-path">~/.claude/skills/vba-modernizer</span>
+
+<span class="c-cmt"># 重啟 Claude Code</span></pre>
+    </div>
+
+    <h3>專案層級安裝（只在這個專案使用）</h3>
+    <div class="code-wrap no-label">
+      <pre>git clone https://github.com/rosa7650-bot/mk-vba-vsto-modernizer.git <span class="c-path">.claude/skills/vba-modernizer</span></pre>
+    </div>
+  </div>
+
+  <!-- 前置條件 -->
+  <div class="section" id="prerequisite">
+    <h2>📦 前置條件</h2>
+    <div class="install-steps">
+      <div class="install-step">
+        <div class="step-body">
+          <div class="step-title">安裝 Python（3.8+）</div>
+          <div class="code-wrap no-label"><pre>python --version</pre></div>
+        </div>
+      </div>
+      <div class="install-step">
+        <div class="step-body">
+          <div class="step-title">安裝 oletools（VBA 提取工具）</div>
+          <div class="code-wrap no-label"><pre>pip install oletools</pre></div>
+        </div>
+      </div>
+      <div class="install-step">
+        <div class="step-body">
+          <div class="step-title">安裝 Claude Code CLI</div>
+          <div class="code-wrap no-label"><pre>npm install -g @anthropic-ai/claude-code</pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 啟動 -->
+  <div class="section" id="start">
+    <h2>🚀 啟動 Skill</h2>
+    <p style="color:var(--muted);margin-bottom:1rem">用 Claude Code 開啟你的 VBA 專案資料夾，輸入指令啟動。</p>
+
+    <div class="install-steps">
+      <div class="install-step">
+        <div class="step-body">
+          <div class="step-title">進入專案目錄，開啟 Claude Code</div>
+          <div class="code-wrap no-label"><pre>cd C:\Projects\MyVBASystem
+claude</pre></div>
+        </div>
+      </div>
+      <div class="install-step">
+        <div class="step-body">
+          <div class="step-title">輸入 skill 指令</div>
+          <div class="code-wrap no-label"><pre>/vba-modernizer</pre></div>
+        </div>
+      </div>
+      <div class="install-step">
+        <div class="step-body">
+          <div class="step-title">告訴 Claude 來源檔案位置</div>
+          <div class="chat">
+            <div class="msg">
+              <div class="avatar av-claude">AI</div>
+              <div class="bubble bubble-claude">請提供來源檔案路徑（.xlsm、.xls 或 .bas/.cls 資料夾）</div>
+            </div>
+            <div class="msg user">
+              <div class="avatar av-user">你</div>
+              <div class="bubble bubble-user">TEST.XLS</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 1 -->
+  <div class="section" id="phase1">
+    <h2><span class="p1b">Phase 1</span> Discovery — 自動執行</h2>
+    <p style="color:var(--muted);margin-bottom:1rem">Claude 自動提取並分析所有 VBA 模組，不需要任何操作。</p>
+
+    <div class="chat">
+      <div class="msg">
+        <div class="avatar av-claude">AI</div>
+        <div class="bubble bubble-claude">
+          Phase 1 完成。<br><br>
+          <b>📦 提取結果：</b>
+          <pre>- 18 個模組（Standard 8、UserForm 4、Worksheet 5、ThisWorkbook 1）
+- 6,240 行 VBA
+- 67 個 Public 程序</pre>
+          <b>🗄️ 發現 2 個資料庫：</b>
+          <pre>- DB-1 Oracle（ADD_MONTHS、NVL 語法）→ 主資料庫
+- DB-2 SQL Server（CHARINDEX）→ 規則庫</pre>
+          <b>⚠️ 風險摘要：</b>
+          <pre>- CRITICAL 模組：8 個
+- SQL 字串拼接：42 處（注入風險）
+- On Error Resume Next：9 處
+- MsgBox in loop：15 處
+- 硬編碼帳密：2 處</pre>
+          繼續 Phase 2 嗎？
+        </div>
+      </div>
+    </div>
+
+    <div class="output-box">
+      <div class="out-title">Phase 1 產出</div>
+      <div class="out-file"><span class="out-icon">📁</span><span class="out-name">.vba-extracted/*.bas / *.cls</span><span class="out-desc">VBA 原始碼</span></div>
+      <div class="out-file"><span class="out-icon">📄</span><span class="out-name">.vba-extracted/inventory.json</span><span class="out-desc">模組分析結果</span></div>
+      <div class="out-file"><span class="out-icon">📄</span><span class="out-name">.vba-extracted/call-graph.json</span><span class="out-desc">程序依賴圖</span></div>
+      <div class="out-file"><span class="out-icon">📄</span><span class="out-name">.vba-extracted/SYSTEM_PROFILE.md</span><span class="out-desc">系統概覽報告</span></div>
+    </div>
+  </div>
+
+  <!-- Phase 2 -->
+  <div class="section" id="phase2">
+    <h2><span class="p2b">Phase 2</span> Plan — 回答 5 個決策問題</h2>
+    <p style="color:var(--muted);margin-bottom:1rem">Claude 逐一詢問關鍵決策，根據你的答案產出三份計畫文件。</p>
+
+    <div class="decisions">
+      <div class="decision">
+        <div class="d-q">D-1 &nbsp;目標架構？</div>
+        <div class="d-opts"><span class="sel">A) React + Python 後端</span> &nbsp; B) React + Node 後端 &nbsp; C) 純 Python（無 UI）</div>
+      </div>
+      <div class="decision">
+        <div class="d-q">D-2 &nbsp;資料庫策略？</div>
+        <div class="d-opts"><span class="sel">A) 保留現有所有 DB</span> &nbsp; B) 全部遷移到單一 DB &nbsp; C) 保留讀取、遷移寫入</div>
+      </div>
+      <div class="decision">
+        <div class="d-q">D-3 &nbsp;輸出格式？</div>
+        <div class="d-opts"><span class="sel">A) 繼續產出 .xlsx 報表</span> &nbsp; B) Web 介面顯示 &nbsp; C) 兩者都要</div>
+      </div>
+      <div class="decision">
+        <div class="d-q">D-4 &nbsp;使用者設定儲存（取代 Windows Registry）？</div>
+        <div class="d-opts"><span class="sel">A) 瀏覽器 localStorage</span> &nbsp; B) 後端 DB 資料表 &nbsp; C) 設定檔</div>
+      </div>
+      <div class="decision">
+        <div class="d-q">D-5 &nbsp;錯誤提示策略（取代 MsgBox in loop）？</div>
+        <div class="d-opts"><span class="sel">A) 批次收集所有錯誤後一次回傳</span> &nbsp; B) 遇第一個錯誤即中斷 &nbsp; C) 記錄 log 繼續執行</div>
+      </div>
+    </div>
+
+    <div class="warn"><strong>⚠ 重要：</strong>Claude 在此階段停下，等待你確認計畫後才繼續。不會自動開始寫程式碼。</div>
+
+    <div class="output-box">
+      <div class="out-title">Phase 2 產出</div>
+      <div class="out-file"><span class="out-icon">🌐</span><span class="out-name">MODERNIZATION_FLOW.html</span><span class="out-desc">四大階段視覺流程圖</span></div>
+      <div class="out-file"><span class="out-icon">📄</span><span class="out-name">MIGRATION_PLAN.md</span><span class="out-desc">Wave 遷移順序 + 風險台帳</span></div>
+      <div class="out-file"><span class="out-icon">🌐</span><span class="out-name">MIGRATION_PLAN.html</span><span class="out-desc">視覺化計畫文件</span></div>
+      <div class="out-file"><span class="out-icon">🌐</span><span class="out-name">API_PLAN.html</span><span class="out-desc">所有 API 端點互動式說明</span></div>
+    </div>
+  </div>
+
+  <!-- Phase 3 -->
+  <div class="section" id="phase3">
+    <h2><span class="p3b">Phase 3</span> API Transform — 分 6 步建立後端</h2>
+    <p style="color:var(--muted);margin-bottom:1rem">每個 P-step 完成後 Claude 停下確認，你說「繼續」才進下一步。</p>
+
+    <table>
+      <thead><tr><th>Step</th><th>工作內容</th><th>對應 VBA 模組</th><th>產出</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="p3b">P1</span> 基礎建設</td>
+          <td>DB 連線池、統一回應格式、錯誤處理、帳密移至 .env</td>
+          <td>連線管理模組（如 mdlDB）</td>
+          <td><code>db/</code> <code>.env.example</code></td>
+        </tr>
+        <tr>
+          <td><span class="p3b">P2</span> Reference APIs</td>
+          <td>下拉選單資料、主參照查詢，SQL 改為參數化</td>
+          <td>資料查詢模組（如 mdlRecordset）</td>
+          <td><code>repositories/ref.py</code> <code>routes/ref.py</code></td>
+        </tr>
+        <tr>
+          <td><span class="p3b">P3</span> 核心查詢 API</td>
+          <td>主資料載入邏輯，分解為 pipeline，<code>Cells(r,c).Value</code> 改為 JSON</td>
+          <td>最大的業務邏輯模組</td>
+          <td><code>services/query.py</code></td>
+        </tr>
+        <tr>
+          <td><span class="p3b">P4</span> 編輯 APIs</td>
+          <td>新增／修改／刪除操作，每次回傳完整資料狀態</td>
+          <td>列操作模組（如 mdlEdit）</td>
+          <td><code>services/edit.py</code></td>
+        </tr>
+        <tr>
+          <td><span class="p3b">P5</span> 驗證 + 匯入</td>
+          <td>批次驗證、Transaction 寫入、MsgBox 確認改為 API 回傳</td>
+          <td>驗證模組、匯入模組</td>
+          <td><code>services/import.py</code></td>
+        </tr>
+        <tr>
+          <td><span class="p3b">P6</span> 匯出 + 整合</td>
+          <td>.xlsx/.txt 輸出、EDI 外部系統整合，Golden Test 比對</td>
+          <td>報表模組、EDI 模組</td>
+          <td><code>services/export.py</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>對話範例（P1）</h3>
+    <div class="chat">
+      <div class="msg">
+        <div class="avatar av-claude">AI</div>
+        <div class="bubble bubble-claude">
+          <b>P1 完成。</b><br><br>
+          已產出：
+          <pre><span class="c-ok">✅</span> migrated/backend/db/oracle.py       ← cx_Oracle 連線池
+<span class="c-ok">✅</span> migrated/backend/db/sqlserver.py    ← pyodbc 連線池
+<span class="c-ok">✅</span> migrated/backend/core/response.py
+<span class="c-ok">✅</span> migrated/backend/.env.example
+
+<span class="c-warn">⚠ REVIEW_QUEUE 新增 1 筆：</span>
+  mdlDB.bas:12 — 原硬編碼 "Password=abc123"
+  → 已改為 os.getenv("ORACLE_PASSWORD")
+  請確認 .env 填入正確值</pre>
+          繼續 P2？
+        </div>
+      </div>
+      <div class="msg user">
+        <div class="avatar av-user">你</div>
+        <div class="bubble bubble-user">繼續</div>
+      </div>
+    </div>
+
+    <div class="note"><strong>完成條件：</strong>所有 API 整合測試通過 + OpenAPI 文件產出 + REVIEW_QUEUE 無未解的 CRITICAL 項目，才進入 Phase 4。</div>
+  </div>
+
+  <!-- Phase 4 -->
+  <div class="section" id="phase4">
+    <h2><span class="p4b">Phase 4</span> Frontend UI — UserForm → React</h2>
+    <p style="color:var(--muted);margin-bottom:1rem">所有商業邏輯留在後端 API，前端 React 只負責顯示與輸入。</p>
+
+    <table>
+      <thead><tr><th>VBA 來源</th><th>React 元件</th><th>呼叫的 API</th></tr></thead>
+      <tbody>
+        <tr><td><code>UserForm</code> + 串聯下拉選單</td><td><code>&lt;QueryForm&gt;</code></td><td>GET /ref/* Reference APIs</td></tr>
+        <tr><td><code>UserForm</code> + 資料表格</td><td><code>&lt;DataGrid&gt;</code></td><td>POST /query 核心查詢</td></tr>
+        <tr><td><code>UserForm</code> + Submit 按鈕</td><td><code>&lt;SubmitDialog&gt;</code></td><td>POST /validate → POST /import</td></tr>
+        <tr><td><code>Worksheet_Change</code> 事件</td><td><code>onChange</code> handler</td><td>POST /rows Edit API</td></tr>
+        <tr><td><code>Workbook_Open</code></td><td><code>useEffect</code> on mount</td><td>GET /settings</td></tr>
+        <tr><td><code>CommandBars</code> 工具列</td><td><code>&lt;Navbar&gt;</code> + React Router</td><td>—</td></tr>
+        <tr><td><code>MsgBox</code> 確認視窗</td><td><code>&lt;ConfirmDialog&gt;</code></td><td>API 回傳 <code>requires_confirmation</code></td></tr>
+        <tr><td><code>MsgBox</code> 批次錯誤</td><td><code>&lt;ErrorList&gt;</code></td><td>API 回傳 <code>errors[]</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 所有產出物 -->
+  <div class="section" id="outputs">
+    <h2>📂 所有產出物</h2>
+    <div class="code-wrap no-label">
+      <pre><span class="c-path">MyVBAProject/</span>
+├── <span class="c-str">TEST.XLS</span>                      ← 原始檔，唯讀，永不修改
+├── <span class="c-path">.vba-extracted/</span>               ← Phase 1
+│   ├── *.bas / *.cls / *.frm
+│   ├── inventory.json
+│   ├── call-graph.json
+│   └── SYSTEM_PROFILE.md
+├── <span class="c-ok">MODERNIZATION_FLOW.html</span>        ← Phase 2：四階段流程圖
+├── <span class="c-ok">MIGRATION_PLAN.md</span>              ← Phase 2：遷移計畫
+├── <span class="c-ok">MIGRATION_PLAN.html</span>            ← Phase 2：視覺化版本
+├── <span class="c-ok">API_PLAN.html</span>                  ← Phase 2：API 端點清單
+├── <span class="c-path">migrated/</span>
+│   ├── <span class="c-path">backend/</span>                   ← Phase 3
+│   │   ├── db/                    ← DB 連線池（自動偵測幾個 DB）
+│   │   ├── repositories/          ← 所有 SQL（已參數化）
+│   │   ├── services/              ← VBA 業務邏輯翻譯
+│   │   ├── routes/                ← API 路由
+│   │   ├── tests/                 ← 整合測試
+│   │   ├── .env.example
+│   │   └── main.py / index.ts
+│   ├── <span class="c-path">frontend/</span>                  ← Phase 4
+│   │   └── src/components/
+│   └── REVIEW_QUEUE.md            ← 待人工確認項目
+└── <span class="c-ok">MIGRATION_REPORT.md</span>            ← 完成報告</pre>
+    </div>
+  </div>
+
+  <!-- 設定檔 -->
+  <div class="section" id="config">
+    <h2>⚙️ 設定檔（選用）</h2>
+    <p style="color:var(--muted);margin-bottom:.8rem">在專案根目錄建立 <code>.vba-modernizer.yml</code> 可略過 D-1 至 D-5 互動問答。</p>
+    <div class="code-wrap">
+      <div class="code-label">.vba-modernizer.yml</div>
+      <pre><span class="c-key">target</span>: react-python        <span class="c-cmt"># react-python | react-node | python | node</span>
+<span class="c-key">source</span>: original/TEST.XLS
+<span class="c-key">output</span>: migrated/
+<span class="c-key">decisions</span>:
+  <span class="c-key">d1</span>: react-python
+  <span class="c-key">d2</span>: keep-existing
+  <span class="c-key">d3</span>: xlsx
+  <span class="c-key">d4</span>: localstorage
+  <span class="c-key">d5</span>: batch-errors
+<span class="c-key">exclusions</span>:
+  - Module1            <span class="c-cmt"># 跳過空模組</span>
+<span class="c-key">risk_threshold</span>: medium   <span class="c-cmt"># medium 以上列入 REVIEW_QUEUE</span>
+<span class="c-key">test_generation</span>: true</pre>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="section" id="faq">
+    <h2>❓ FAQ</h2>
+    <table>
+      <thead><tr><th>問題</th><th>答案</th></tr></thead>
+      <tbody>
+        <tr><td>支援哪些 VBA 系統？</td><td>任何 .xlsm / .xls / .xlam / .bas / .cls / .frm，財務、HR、庫存、製造等所有領域</td></tr>
+        <tr><td>可以只做 Plan 不寫程式碼？</td><td>可以。Phase 2 完成後停下，把三份 HTML/MD 文件交給開發團隊照計畫實作</td></tr>
+        <tr><td>每次都要從 Phase 1 重新開始？</td><td>不用。<code>.vba-extracted/inventory.json</code> 存在時 Phase 1 自動跳過</td></tr>
+        <tr><td>不懂 Python/Node 可以用嗎？</td><td>Phase 1–2 只需要回答問題。Phase 3 開始會產出程式碼，需要基本開發環境</td></tr>
+        <tr><td>原始 .xlsm 會被修改嗎？</td><td>絕對不會。Skill 硬規定原始檔唯讀，所有輸出放在 <code>migrated/</code></td></tr>
+        <tr><td>SQL Server 和 Oracle 都支援？</td><td>是，Phase 1 自動從 SQL 語法識別資料庫類型，P1 建立對應連線池</td></tr>
+        <tr><td>如果中途想改決策怎麼辦？</td><td>告訴 Claude 重新回答 D-X，Claude 會重新產出相關計畫文件</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /layout -->
+</body>
+</html>
