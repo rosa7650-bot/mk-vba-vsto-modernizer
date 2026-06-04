@@ -377,7 +377,46 @@ claude</pre></div>
   <!-- Phase 3 -->
   <div class="section" id="phase3">
     <h2><span class="p3b">Phase 3</span> API Transform — 分 6 步建立後端</h2>
-    <p style="color:var(--muted);margin-bottom:1rem">每個 P-step 完成後 Claude 停下確認，你說「繼續」才進下一步。</p>
+    <p style="color:var(--muted);margin-bottom:1rem">每個 P-step 開始前 Claude 先詢問資料庫是否可用，可選擇正常模式或 Stub 模式繼續。</p>
+
+    <!-- Stub Mode 說明 -->
+    <div style="background:rgba(188,140,255,.07);border:1px solid rgba(188,140,255,.25);border-radius:var(--radius);padding:1rem 1.2rem;margin-bottom:1.2rem">
+      <div style="font-weight:700;color:var(--purple);margin-bottom:.6rem">🧩 Stub 模式 — 資料源尚未就緒也能繼續</div>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:.8rem">每個 P-step 開始時，Claude 會詢問對應的資料庫連線是否可用。若尚未開放，可選擇 Stub 模式：API 端點照常建立，暫時回傳靜態假資料，前端可以立即開始開發。待資料庫就緒後，只需替換 Repository 層即可，API 合約完全不變。</p>
+      <div class="chat" style="margin:0">
+        <div class="msg">
+          <div class="avatar av-claude">AI</div>
+          <div class="bubble bubble-claude" style="font-size:.82rem">
+            P2 開始前確認：<br>
+            <b>DB-1 Oracle（主資料庫）</b> 連線目前可用嗎？<br><br>
+            <b>A) 可用</b> — 直接連真實 DB 實作<br>
+            <b>B) 尚未開放</b> — 使用 Stub 模式，先回傳假資料，之後再換真實 DB
+          </div>
+        </div>
+        <div class="msg user">
+          <div class="avatar av-user">你</div>
+          <div class="bubble bubble-user">B，先用 Stub</div>
+        </div>
+        <div class="msg">
+          <div class="avatar av-claude">AI</div>
+          <div class="bubble bubble-claude" style="font-size:.82rem">
+            了解，P2 以 Stub 模式實作。<br><br>
+            <pre style="font-size:.75rem"># STUB: replace with real DB when available
+# stubs/ref_stub.py
+def get_customers(origin_district: str):
+    return [
+        {"customer_id": 1, "customer_code": "GAP", "customer_name": "GAP INC."},
+        {"customer_id": 2, "customer_code": "DKS", "customer_name": "DICKS"}
+    ]</pre>
+            API 合約與真實版完全相同，STUB_STATUS.md 已登記。<br>
+            資料庫可用後只需替換 <code>ref_stub.py</code> 為真實 repository，前端無需修改。
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:.8rem;font-size:.78rem;color:var(--muted)">
+        產出：<code>migrated/backend/stubs/</code> 假資料檔 &nbsp;+&nbsp; <code>STUB_STATUS.md</code> 追蹤表
+      </div>
+    </div>
 
     <table>
       <thead><tr><th>Step</th><th>工作內容</th><th>對應 VBA 模組</th><th>產出</th></tr></thead>
@@ -495,7 +534,9 @@ claude</pre></div>
 │   │   └── main.py / index.ts
 │   ├── <span class="c-path">frontend/</span>                  ← Phase 4
 │   │   └── src/components/
-│   └── REVIEW_QUEUE.md            ← 待人工確認項目
+│   ├── REVIEW_QUEUE.md            ← 待人工確認項目
+│   ├── <span class="c-warn">STUB_STATUS.md</span>             ← Stub 追蹤表（尚未接上真實 DB 的端點）
+│   └── <span class="c-warn">stubs/</span>                     ← 假資料檔（DB 就緒後替換 repository 即可）
 └── <span class="c-ok">MIGRATION_REPORT.md</span>            ← 完成報告</pre>
     </div>
   </div>
@@ -535,6 +576,9 @@ claude</pre></div>
         <tr><td>原始 .xlsm 會被修改嗎？</td><td>絕對不會。Skill 硬規定原始檔唯讀，所有輸出放在 <code>migrated/</code></td></tr>
         <tr><td>SQL Server 和 Oracle 都支援？</td><td>是，Phase 1 自動從 SQL 語法識別資料庫類型，P1 建立對應連線池</td></tr>
         <tr><td>如果中途想改決策怎麼辦？</td><td>告訴 Claude 重新回答 D-X，Claude 會重新產出相關計畫文件</td></tr>
+        <tr><td>資料庫還沒開放可以開始嗎？</td><td>可以。每個 P-step 開始前 Claude 詢問 DB 是否可用，選「Stub 模式」即可繼續建 API 並用假資料，前端照常開發。待 DB 就緒後只換 repository 層</td></tr>
+        <tr><td>Stub 模式的 API 和真實版本一樣嗎？</td><td>完全相同的路由、請求格式、回應格式。只有資料來源不同（假資料 vs 真實 DB）。前端切換時零改動</td></tr>
+        <tr><td>怎麼知道哪些 API 還是 Stub？</td><td>查看 <code>migrated/STUB_STATUS.md</code>，每個端點都有狀態標記（🟡 Stub / ✅ 已接通）</td></tr>
       </tbody>
     </table>
   </div>

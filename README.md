@@ -22,6 +22,8 @@ Phase 1 Discovery  →  Phase 2 Plan  →  Phase 3 API Transform  →  Phase 4 F
 
 **API First strategy** — all backend APIs are built and tested before any frontend UI is written.
 
+**Stub Mode** — if the database isn't accessible yet, Claude asks whether to build the API with static stub data instead. The API contract stays identical; only the repository layer is swapped when the real DB becomes available. Frontend development can start immediately without waiting for DB access.
+
 ---
 
 ## Installation

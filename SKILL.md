@@ -244,9 +244,48 @@ Use dark theme (`#0d1117` background). Arrows between columns. Responsive.
 All migrated code goes in `migrated/backend/`.
 Update `inventory.json` module status: `pending` → `in_progress` → `migrated` | `needs-review` | `blocked`.
 
+---
+
+### Stub Mode — 資料源尚未就緒時
+
+**在每個 P-step 開始前，先詢問：**
+
+> 「DB-N（[類型] / [用途]）連線目前可用嗎？」
+> - **Yes** → 直接連真實資料庫，正常實作
+> - **No / 尚未開放** → 詢問是否使用 **Stub 模式**
+
+**Stub 模式行為：**
+1. API 端點照常建立（路由、請求格式、回應格式完全不變）
+2. Repository 層回傳靜態假資料（從 VBA SQL 的欄位結構推導，放在 `migrated/backend/stubs/` 下）
+3. 在程式碼加上 `# STUB: replace with real DB when available` 標記
+4. 在 `STUB_STATUS.md` 登記哪些 endpoint 尚未接上真實資料源
+
+**這樣前端可以立即開始開發，不需要等待資料庫連線就緒。**
+當真實資料源可用時，只需替換 repository 層，API 合約完全不變。
+
+Stub 檔案結構：
+```
+migrated/backend/stubs/
+├── ref_stub.py          ← 假的 Lookup 資料
+├── query_stub.py        ← 假的核心查詢結果
+└── ...
+```
+
+`STUB_STATUS.md` 格式：
+```markdown
+| Endpoint | DB | 狀態 | 負責人 | 預計接通日 |
+|---|---|---|---|---|
+| GET /ref/customers | DB-1 Oracle | 🟡 Stub | - | TBD |
+| POST /packing/query | DB-1 Oracle | ✅ 已接通 | - | 2026-06-10 |
+```
+
+---
+
 ### P1 — Foundation & Database Layer
 
-**Deliverable:** All DB connections work, unified response format, error handling middleware.
+**Deliverable:** 統一回應格式與錯誤處理完成；各 DB 連線嘗試建立，無法連線者登記為 Stub。
+
+> **Stub 詢問：** 逐一列出 Phase 1 發現的所有資料庫，詢問每個的連線狀態。
 
 1. Scaffold project structure per D-1 decision:
    - Python: `FastAPI` + `uvicorn` + `pydantic`
@@ -270,14 +309,18 @@ Update `inventory.json` module status: `pending` → `in_progress` → `migrated
 
 ### P2 — Lookup / Reference APIs
 
-**Deliverable:** All read-only lookup endpoints return real data.
+**Deliverable:** 所有 Lookup endpoint 可回傳資料（真實或 Stub）。
+
+> **Stub 詢問：** 「Reference 資料（客戶、款式、CPO 等）的 DB 連線可用嗎？」
+> - Yes → 正常實作，查詢真實 DB
+> - No → Stub 模式：從 VBA SQL 的 SELECT 欄位推導假資料結構，放入 `stubs/ref_stub.py`
 
 For each data-fetching function in repository modules:
 1. Read original VBA SQL string
 2. Rewrite as **parameterized query** — never string concatenation
-3. Implement repository function
+3. Implement repository function（若 Stub：`return ref_stub.get_customers()`）
 4. Wire to route handler
-5. Write integration test against real DB
+5. 若真實 DB：Write integration test；若 Stub：Write unit test against stub data
 
 **Pattern translations (apply from `references/vba-sql-patterns.md`):**
 - `"WHERE x=" & val` → `WHERE x = :x` (Oracle) or `WHERE x = @x` (SQL Server)
@@ -291,7 +334,11 @@ If a module contains **business rule lookups** (hardcoded SELECT UNION ALL or CA
 
 ### P3 — Core Query API
 
-**Deliverable:** The main data-loading endpoint works end-to-end.
+**Deliverable:** 核心查詢 endpoint 可回傳完整資料結構（真實或 Stub）。
+
+> **Stub 詢問：** 「核心查詢涉及的 DB（[列出所有 DB]）連線可用嗎？」
+> - No → Stub 模式：從 VBA 程式碼推導典型回傳結構（顏色、尺碼、明細行等），
+>   放入 `stubs/query_stub.py`，回傳固定範例資料。
 
 This typically maps to the heaviest module(s) — the equivalent of `InputData` or a main `Load` procedure. Decompose into a pipeline of named steps:
 
@@ -333,7 +380,12 @@ For each mutating procedure (InsertRow, DeleteRow, Update, etc.):
 
 ### P5 — Validation + Main Submit API
 
-**Deliverable:** Complete submit flow works with transactions.
+**Deliverable:** 驗證與寫入流程完成（Stub 模式下驗證邏輯正常，DB 寫入回傳模擬成功）。
+
+> **Stub 詢問：** 「寫入用的 DB（Stored Procedure / Transaction）連線可用嗎？」
+> - No → Stub 模式：`POST /import` 執行完整驗證邏輯，最後寫入步驟回傳
+>   `{ "success": true, "packing_no": "STUB-001", "stub": true }`，
+>   不實際寫入資料庫。
 
 1. **Pre-submit validation endpoint(s)** — maps to any `CheckXxx` / `ValidateXxx` functions:
    - Collect ALL errors per D-5 decision
@@ -418,7 +470,8 @@ Map every VBA UserForm and Worksheet event to a Vue 3 component:
 │   │   └── main.py / index.ts
 │   ├── frontend/                 ← Phase 4
 │   │   └── src/components/
-│   └── REVIEW_QUEUE.md
+│   ├── REVIEW_QUEUE.md
+│   └── STUB_STATUS.md            ← Stub 端點追蹤表（哪些尚未接上真實 DB）
 ├── MODERNIZATION_FLOW.html       ← Phase 2: visual 4-phase diagram
 ├── MIGRATION_PLAN.md             ← Phase 2: detailed migration plan
 ├── MIGRATION_PLAN.html           ← Phase 2: rendered version
@@ -459,6 +512,10 @@ test_generation: true
 
 ## Hard Rules
 
+- **Always ask about DB availability before each P-step.** Never assume a connection is ready.
+- **Stub APIs must be API-contract-identical to real APIs.** Same route, same request/response schema, only the data source differs.
+- **Never mix stub and real data in the same response.** Each endpoint is either fully real or fully stub.
+- **Always mark stub code with `# STUB:` comments** and log in `STUB_STATUS.md`.
 - **Never modify the original workbook.** It is read-only at all times.
 - **Never run macros during migration.** Static analysis only (olevba).
 - **Never write frontend code before Phase 3 API tests pass.**
