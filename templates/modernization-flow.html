@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{project_name}} — Modernization Flow</title>
+<style>
+  :root {
+    --bg:#0d1117;--surface:#161b22;--surface2:#21262d;--border:#30363d;
+    --text:#c9d1d9;--muted:#8b949e;
+    --c1:#58a6ff;--c2:#bc8cff;--c3:#3fb950;--c4:#f0883e;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI',sans-serif;padding:2.5rem 2rem;min-height:100vh}
+  h1{text-align:center;font-size:1.4rem;font-weight:700;color:#fff;margin-bottom:.3rem}
+  .sub{text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:2.5rem}
+  .phases{display:flex;gap:0;align-items:flex-start;justify-content:center;overflow-x:auto}
+  .arrow{display:flex;align-items:flex-start;padding-top:54px;flex-shrink:0}
+  .phase{flex:0 0 210px;min-width:210px}
+  .phase-header{border-radius:var(--radius) var(--radius) 0 0;padding:.7rem 1rem;text-align:center}
+  .ph-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;opacity:.75;margin-bottom:.2rem}
+  .ph-title{font-size:1rem;font-weight:700}
+  .ph-sub{font-size:.72rem;opacity:.8;margin-top:.15rem}
+  .badge{display:inline-block;font-size:.65rem;font-weight:700;padding:.1rem .45rem;border-radius:20px;margin-top:.3rem;letter-spacing:.04em}
+  .done{background:rgba(63,185,80,.2);border:1px solid rgba(63,185,80,.5);color:#3fb950}
+  .next{background:rgba(240,136,62,.15);border:1px solid rgba(240,136,62,.4);color:var(--c4)}
+  .pending{background:rgba(139,148,158,.1);border:1px solid var(--border);color:var(--muted)}
+  .phase-body{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:.8rem;display:flex;flex-direction:column;gap:.5rem}
+  .step{background:var(--surface2);border-radius:7px;padding:.6rem .75rem;border-left:3px solid transparent}
+  .step-title{font-size:.8rem;font-weight:600;margin-bottom:.25rem}
+  .step-detail{font-size:.72rem;color:var(--muted);line-height:1.5}
+  .step-tags{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.35rem}
+  .tag{font-size:.68rem;padding:.1rem .4rem;border-radius:3px;font-family:monospace}
+  .p1 .phase-header{background:linear-gradient(135deg,#0d2545,#112040);color:var(--c1);border:1px solid rgba(88,166,255,.3);border-bottom:none}
+  .p1 .step{border-left-color:var(--c1)}.p1 .tag{background:rgba(88,166,255,.12);color:var(--c1);border:1px solid rgba(88,166,255,.25)}
+  .p2 .phase-header{background:linear-gradient(135deg,#1d1040,#160d35);color:var(--c2);border:1px solid rgba(188,140,255,.3);border-bottom:none}
+  .p2 .step{border-left-color:var(--c2)}.p2 .tag{background:rgba(188,140,255,.12);color:var(--c2);border:1px solid rgba(188,140,255,.25)}
+  .p3 .phase-header{background:linear-gradient(135deg,#0d2d14,#0a2510);color:var(--c3);border:1px solid rgba(63,185,80,.3);border-bottom:none}
+  .p3 .step{border-left-color:var(--c3)}.p3 .tag{background:rgba(63,185,80,.12);color:var(--c3);border:1px solid rgba(63,185,80,.25)}
+  .p4 .phase-header{background:linear-gradient(135deg,#2d1a08,#250f05);color:var(--c4);border:1px solid rgba(240,136,62,.3);border-bottom:none}
+  .p4 .step{border-left-color:var(--c4)}.p4 .tag{background:rgba(240,136,62,.12);color:var(--c4);border:1px solid rgba(240,136,62,.25)}
+  .phase-output{margin-top:.5rem;padding:.5rem .75rem;background:rgba(255,255,255,.03);border:1px dashed var(--border);border-radius:6px;font-size:.72rem;color:var(--muted)}
+  .phase-output strong{color:var(--text);display:block;margin-bottom:.2rem;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em}
+  .legend{display:flex;justify-content:center;gap:1.5rem;margin-top:2rem;flex-wrap:wrap}
+  .legend-item{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--muted)}
+  .legend-dot{width:10px;height:10px;border-radius:50%}
+  .db-row{max-width:860px;margin:1.8rem auto 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.5rem;font-size:.82rem;color:var(--muted);display:grid;gap:1rem}
+  .db-item .db-title{font-weight:700;margin-bottom:.3rem}
+  @media(max-width:900px){.phases{flex-direction:column;align-items:center}.arrow{padding:.5rem 0;transform:rotate(90deg)}.phase{min-width:min(100%,400px)}}
+</style>
+</head>
+<body>
+<h1>{{project_name}} — Modernization Plan</h1>
+<div class="sub">{{source_file}} &nbsp;·&nbsp; API First Strategy &nbsp;·&nbsp; {{date}}</div>
+
+<div class="phases">
+
+  <!-- Phase 1: Discovery -->
+  <div class="phase p1">
+    <div class="phase-header">
+      <div class="ph-label">Phase 1</div>
+      <div class="ph-title">🔬 Discovery</div>
+      <div class="ph-sub">抽取 &amp; 盤點</div>
+      <div class="badge {{p1_status_class}}">{{p1_status_label}}</div>
+    </div>
+    <div class="phase-body">
+      <div class="step">
+        <div class="step-title">VBA 提取</div>
+        <div class="step-detail">oletools 靜態分析，輸出 {{module_count}} 個模組</div>
+        <div class="step-tags"><span class="tag">extract_vba.py</span><span class="tag">{{module_count}} modules</span></div>
+      </div>
+      <div class="step">
+        <div class="step-title">模組分析</div>
+        <div class="step-detail">分類風險、統計 Public API、產生 call-graph</div>
+        <div class="step-tags"><span class="tag">inventory.json</span><span class="tag">call-graph.json</span></div>
+      </div>
+      <div class="step">
+        <div class="step-title">風險識別</div>
+        <div class="step-detail">{{critical_count}} 個 CRITICAL 模組、{{sql_injection_count}} 處 SQL 拼接</div>
+        <div class="step-tags">{{risk_tags}}</div>
+      </div>
+      <div class="phase-output"><strong>Output</strong>.vba-extracted/ &nbsp;·&nbsp; SYSTEM_PROFILE.md</div>
+    </div>
+  </div>
+
+  <div class="arrow"><svg width="32" height="20" viewBox="0 0 32 20"><line x1="0" y1="10" x2="24" y2="10" stroke="#30363d" stroke-width="2"/><polygon points="24,5 32,10 24,15" fill="#30363d"/></svg></div>
+
+  <!-- Phase 2: Plan -->
+  <div class="phase p2">
+    <div class="phase-header">
+      <div class="ph-label">Phase 2</div>
+      <div class="ph-title">📋 Plan</div>
+      <div class="ph-sub">盤點 &amp; 計畫</div>
+      <div class="badge {{p2_status_class}}">{{p2_status_label}}</div>
+    </div>
+    <div class="phase-body">
+      <div class="step">
+        <div class="step-title">遷移計畫</div>
+        <div class="step-detail">Wave 1–6 遷移順序、風險台帳、D1–D5 決策</div>
+        <div class="step-tags"><span class="tag">MIGRATION_PLAN.md</span></div>
+      </div>
+      <div class="step">
+        <div class="step-title">資料庫識別</div>
+        <div class="step-detail">{{db_count}} 個 DB：{{db_list}}</div>
+        <div class="step-tags">{{db_tags}}</div>
+      </div>
+      <div class="step">
+        <div class="step-title">API First 計畫</div>
+        <div class="step-detail">{{endpoint_count}} 個 Endpoints、{{group_count}} 個 Groups</div>
+        <div class="step-tags"><span class="tag">API_PLAN.html</span></div>
+      </div>
+      <div class="phase-output"><strong>Output</strong>MIGRATION_PLAN.md &nbsp;·&nbsp; API_PLAN.html &nbsp;·&nbsp; MODERNIZATION_FLOW.html</div>
+    </div>
+  </div>
+
+  <div class="arrow"><svg width="32" height="20" viewBox="0 0 32 20"><line x1="0" y1="10" x2="24" y2="10" stroke="#30363d" stroke-width="2"/><polygon points="24,5 32,10 24,15" fill="#30363d"/></svg></div>
+
+  <!-- Phase 3: API Transform -->
+  <div class="phase p3">
+    <div class="phase-header">
+      <div class="ph-label">Phase 3 — API First</div>
+      <div class="ph-title">⚙️ Transform</div>
+      <div class="ph-sub">逐模組轉換（後端）</div>
+      <div class="badge {{p3_status_class}}">{{p3_status_label}}</div>
+    </div>
+    <div class="phase-body">
+      <div class="step">
+        <div class="step-title"><span style="background:rgba(63,185,80,.2);color:#3fb950;padding:.1rem .4rem;border-radius:3px;font-size:.7rem;margin-right:.3rem">P1</span>基礎建設</div>
+        <div class="step-detail">DB 連線池（{{db_count}} 個）、統一回應格式、錯誤處理</div>
+        <div class="step-tags">{{p1_modules}}</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span style="background:rgba(63,185,80,.2);color:#3fb950;padding:.1rem .4rem;border-radius:3px;font-size:.7rem;margin-right:.3rem">P2</span>Reference APIs</div>
+        <div class="step-detail">下拉選單、主參照資料查詢</div>
+        <div class="step-tags">{{p2_modules}}</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span style="background:rgba(63,185,80,.2);color:#3fb950;padding:.1rem .4rem;border-radius:3px;font-size:.7rem;margin-right:.3rem">P3</span>核心查詢 API</div>
+        <div class="step-detail">主要資料載入邏輯（最核心）</div>
+        <div class="step-tags">{{p3_modules}}</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span style="background:rgba(63,185,80,.2);color:#3fb950;padding:.1rem .4rem;border-radius:3px;font-size:.7rem;margin-right:.3rem">P4</span>編輯 APIs</div>
+        <div class="step-detail">新增、修改、刪除操作</div>
+        <div class="step-tags">{{p4_modules}}</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span style="background:rgba(63,185,80,.2);color:#3fb950;padding:.1rem .4rem;border-radius:3px;font-size:.7rem;margin-right:.3rem">P5</span>驗證 + 匯入</div>
+        <div class="step-detail">驗證流程、SP 呼叫、Transaction 寫入</div>
+        <div class="step-tags">{{p5_modules}}</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span style="background:rgba(63,185,80,.2);color:#3fb950;padding:.1rem .4rem;border-radius:3px;font-size:.7rem;margin-right:.3rem">P6</span>匯出 + 整合</div>
+        <div class="step-detail">Excel/TXT 輸出、外部系統 EDI</div>
+        <div class="step-tags">{{p6_modules}}</div>
+      </div>
+      <div class="phase-output"><strong>Output</strong>{{endpoint_count}} API Endpoints &nbsp;·&nbsp; OpenAPI Docs &nbsp;·&nbsp; Tests</div>
+    </div>
+  </div>
+
+  <div class="arrow"><svg width="32" height="20" viewBox="0 0 32 20"><line x1="0" y1="10" x2="24" y2="10" stroke="#30363d" stroke-width="2"/><polygon points="24,5 32,10 24,15" fill="#30363d"/></svg></div>
+
+  <!-- Phase 4: Frontend UI -->
+  <div class="phase p4">
+    <div class="phase-header">
+      <div class="ph-label">Phase 4</div>
+      <div class="ph-title">🖥️ Frontend UI</div>
+      <div class="ph-sub">UserForm → React 元件</div>
+      <div class="badge {{p4_status_class}}">{{p4_status_label}}</div>
+    </div>
+    <div class="phase-body">
+      {{userform_steps}}
+      <div class="step">
+        <div class="step-title">App Routing / 選單列</div>
+        <div class="step-detail">ThisWorkbook CommandBars → React Router + Navbar</div>
+        <div class="step-tags"><span class="tag">ThisWorkbook</span><span class="tag">React Router</span></div>
+      </div>
+      <div class="phase-output"><strong>Output</strong>React + TypeScript App &nbsp;·&nbsp; 完整取代 Excel UI</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c1)"></div>Phase 1 Discovery</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c2)"></div>Phase 2 Plan</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c3)"></div>Phase 3 API Transform</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--c4)"></div>Phase 4 Frontend UI</div>
+</div>
+
+<div class="db-row" style="grid-template-columns:{{db_grid_cols}}">
+  {{db_cards}}
+</div>
+
+</body>
+</html>
