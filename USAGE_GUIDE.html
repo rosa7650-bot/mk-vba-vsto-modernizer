@@ -387,10 +387,27 @@ claude</pre></div>
         <div class="msg">
           <div class="avatar av-claude">AI</div>
           <div class="bubble bubble-claude" style="font-size:.82rem">
-            P2 開始前確認，這個步驟需要連接以下資料庫：<br><br>
-            <b>DB-1：SQL Server</b> — 主要業務資料（客戶、款式、訂單查詢）<br>
-            <b>DB-2：PostgreSQL</b> — 報表倉儲（歷史記錄、備份）<br><br>
-            請回答每個 DB 的狀態：<b>可用 / 尚未開放 / 不確定</b>
+            P2 開始前確認。根據 Phase 1 分析，這個步驟涉及以下資料庫，請確認各自的連線狀態：<br><br>
+            <table style="width:100%;font-size:.78rem;border-collapse:collapse">
+              <tr style="border-bottom:1px solid #30363d">
+                <th style="text-align:left;padding:.3rem .5rem;color:#8b949e">編號</th>
+                <th style="text-align:left;padding:.3rem .5rem;color:#8b949e">類型</th>
+                <th style="text-align:left;padding:.3rem .5rem;color:#8b949e">用途</th>
+                <th style="text-align:left;padding:.3rem .5rem;color:#8b949e">狀態</th>
+              </tr>
+              <tr>
+                <td style="padding:.3rem .5rem">DB-1</td>
+                <td style="padding:.3rem .5rem;color:#bc8cff">（依 SYSTEM_PROFILE.md）</td>
+                <td style="padding:.3rem .5rem;color:#8b949e">（依 SYSTEM_PROFILE.md）</td>
+                <td style="padding:.3rem .5rem">可用 / 尚未開放 / 不確定？</td>
+              </tr>
+              <tr>
+                <td style="padding:.3rem .5rem">DB-2</td>
+                <td style="padding:.3rem .5rem;color:#bc8cff">（依 SYSTEM_PROFILE.md）</td>
+                <td style="padding:.3rem .5rem;color:#8b949e">（依 SYSTEM_PROFILE.md）</td>
+                <td style="padding:.3rem .5rem">可用 / 尚未開放 / 不確定？</td>
+              </tr>
+            </table>
           </div>
         </div>
         <div class="msg user">
@@ -400,7 +417,8 @@ claude</pre></div>
         <div class="msg">
           <div class="avatar av-claude">AI</div>
           <div class="bubble bubble-claude" style="font-size:.82rem">
-            了解。DB-1 正常實作，DB-2 改用 Stub 模式。
+            了解。DB-1 正常實作連真實資料庫，DB-2 改用 Stub 模式。<br>
+            資料庫類型與數量依照 Phase 1 的 SYSTEM_PROFILE.md 自動帶入，不同系統會有不同結果。
           </div>
         </div>
         <div class="msg user">

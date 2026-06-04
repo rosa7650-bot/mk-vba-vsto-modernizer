@@ -248,17 +248,18 @@ Update `inventory.json` module status: `pending` → `in_progress` → `migrated
 
 ### Stub Mode — 資料源尚未就緒時
 
-**在每個 P-step 開始前，先查閱 Phase 1 產出的 SYSTEM_PROFILE.md，取出該 P-step 實際涉及的資料庫清單，然後逐一詢問：**
+**在每個 P-step 開始前，先查閱 Phase 1 產出的 SYSTEM_PROFILE.md，取出該 P-step 實際涉及的資料庫，以表格形式詢問：**
 
-> 「這個步驟需要連接以下資料庫，請確認哪些目前可用：
+> 「根據 Phase 1 分析，這個步驟涉及以下資料庫，請確認各自的連線狀態：
 >
-> - DB-1：[類型，如 SQL Server / Oracle / PostgreSQL / Access] — [用途，如 主查詢資料、寫入用 SP、報表倉儲]
-> - DB-2：[類型] — [用途]
-> - ...
+> | 編號 | 類型 | 用途 | 狀態？ |
+> |---|---|---|---|
+> | DB-1 | _(來自 SYSTEM_PROFILE.md)_ | _(來自 SYSTEM_PROFILE.md)_ | 可用 / 尚未開放 / 不確定 |
+> | DB-2 | _(來自 SYSTEM_PROFILE.md)_ | _(來自 SYSTEM_PROFILE.md)_ | 可用 / 尚未開放 / 不確定 |
 >
-> 請回答每個 DB 的狀態：**可用** / **尚未開放** / **不確定**」
+> 只列本 P-step 實際用到的 DB，其餘不列。」
 
-不可將特定資料庫品牌（如 Oracle）寫死在詢問中。詢問內容必須完全來自 SYSTEM_PROFILE.md 的 Database Inventory。
+**規則：詢問時只填入從 SYSTEM_PROFILE.md 讀取到的真實 DB 資訊（類型、用途），不預設、不舉例任何資料庫品牌。**
 
 **Stub 模式行為：**
 1. API 端點照常建立（路由、請求格式、回應格式完全不變）
