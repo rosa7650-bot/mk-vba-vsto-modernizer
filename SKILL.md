@@ -248,11 +248,17 @@ Update `inventory.json` module status: `pending` → `in_progress` → `migrated
 
 ### Stub Mode — 資料源尚未就緒時
 
-**在每個 P-step 開始前，先詢問：**
+**在每個 P-step 開始前，先查閱 Phase 1 產出的 SYSTEM_PROFILE.md，取出該 P-step 實際涉及的資料庫清單，然後逐一詢問：**
 
-> 「DB-N（[類型] / [用途]）連線目前可用嗎？」
-> - **Yes** → 直接連真實資料庫，正常實作
-> - **No / 尚未開放** → 詢問是否使用 **Stub 模式**
+> 「這個步驟需要連接以下資料庫，請確認哪些目前可用：
+>
+> - DB-1：[類型，如 SQL Server / Oracle / PostgreSQL / Access] — [用途，如 主查詢資料、寫入用 SP、報表倉儲]
+> - DB-2：[類型] — [用途]
+> - ...
+>
+> 請回答每個 DB 的狀態：**可用** / **尚未開放** / **不確定**」
+
+不可將特定資料庫品牌（如 Oracle）寫死在詢問中。詢問內容必須完全來自 SYSTEM_PROFILE.md 的 Database Inventory。
 
 **Stub 模式行為：**
 1. API 端點照常建立（路由、請求格式、回應格式完全不變）
@@ -285,7 +291,7 @@ migrated/backend/stubs/
 
 **Deliverable:** 統一回應格式與錯誤處理完成；各 DB 連線嘗試建立，無法連線者登記為 Stub。
 
-> **Stub 詢問：** 逐一列出 Phase 1 發現的所有資料庫，詢問每個的連線狀態。
+> **Stub 詢問（P1）：** 從 SYSTEM_PROFILE.md 列出所有發現的資料庫（類型 + 用途），逐一詢問連線狀態。無法連線者建立空連線池 + 登記為 Stub。
 
 1. Scaffold project structure per D-1 decision:
    - Python: `FastAPI` + `uvicorn` + `pydantic`
@@ -311,9 +317,9 @@ migrated/backend/stubs/
 
 **Deliverable:** 所有 Lookup endpoint 可回傳資料（真實或 Stub）。
 
-> **Stub 詢問：** 「Reference 資料（客戶、款式、CPO 等）的 DB 連線可用嗎？」
-> - Yes → 正常實作，查詢真實 DB
-> - No → Stub 模式：從 VBA SQL 的 SELECT 欄位推導假資料結構，放入 `stubs/ref_stub.py`
+> **Stub 詢問（P2）：** 列出 Lookup 模組實際查詢的資料庫（從 SYSTEM_PROFILE.md 取得類型與用途），詢問是否可用。
+> - 可用 → 正常實作，查詢真實 DB
+> - 尚未開放 → Stub 模式：從 VBA SQL 的 SELECT 欄位推導假資料結構，放入 `stubs/ref_stub.py`
 
 For each data-fetching function in repository modules:
 1. Read original VBA SQL string
@@ -336,9 +342,8 @@ If a module contains **business rule lookups** (hardcoded SELECT UNION ALL or CA
 
 **Deliverable:** 核心查詢 endpoint 可回傳完整資料結構（真實或 Stub）。
 
-> **Stub 詢問：** 「核心查詢涉及的 DB（[列出所有 DB]）連線可用嗎？」
-> - No → Stub 模式：從 VBA 程式碼推導典型回傳結構（顏色、尺碼、明細行等），
->   放入 `stubs/query_stub.py`，回傳固定範例資料。
+> **Stub 詢問（P3）：** 列出核心查詢涉及的所有資料庫（從 call-graph.json + SYSTEM_PROFILE.md 取得），詢問各 DB 狀態。
+> - 有任何 DB 尚未開放 → Stub 模式：從 VBA 程式碼推導典型回傳結構，放入 `stubs/query_stub.py`。
 
 This typically maps to the heaviest module(s) — the equivalent of `InputData` or a main `Load` procedure. Decompose into a pipeline of named steps:
 
@@ -382,10 +387,9 @@ For each mutating procedure (InsertRow, DeleteRow, Update, etc.):
 
 **Deliverable:** 驗證與寫入流程完成（Stub 模式下驗證邏輯正常，DB 寫入回傳模擬成功）。
 
-> **Stub 詢問：** 「寫入用的 DB（Stored Procedure / Transaction）連線可用嗎？」
-> - No → Stub 模式：`POST /import` 執行完整驗證邏輯，最後寫入步驟回傳
->   `{ "success": true, "packing_no": "STUB-001", "stub": true }`，
->   不實際寫入資料庫。
+> **Stub 詢問（P5）：** 列出寫入操作涉及的資料庫（類型 + SP 名稱或 Table，來自 SYSTEM_PROFILE.md），詢問是否可執行寫入。
+> - 尚未開放 → Stub 模式：執行完整驗證邏輯，最後寫入步驟回傳
+>   `{ "success": true, "record_id": "STUB-001", "stub": true }`，不實際寫入。
 
 1. **Pre-submit validation endpoint(s)** — maps to any `CheckXxx` / `ValidateXxx` functions:
    - Collect ALL errors per D-5 decision
