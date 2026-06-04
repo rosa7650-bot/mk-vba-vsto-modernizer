@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
@@ -128,6 +128,15 @@
   tr:last-child td { border-bottom: none; }
   code { font-family: 'Consolas', monospace; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: .1em .35em; font-size: .84em; color: var(--purple); }
 
+
+  /* Reference card */
+  .ref-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.2rem; margin: .8rem 0; }
+  .ref-title { font-size: .95rem; font-weight: 700; margin-bottom: .3rem; }
+  .ref-title a { color: var(--blue); text-decoration: none; }
+  .ref-title a:hover { text-decoration: underline; }
+  .ref-url { font-size: .75rem; color: var(--teal); margin-bottom: .6rem; font-family: monospace; }
+  .ref-desc { font-size: .83rem; color: var(--muted); line-height: 1.6; }
+
   @media (max-width: 800px) { .sidebar { display: none; } .main { padding: 1.5rem; } }
 </style>
 </head>
@@ -154,6 +163,8 @@
   <a class="nav-item" href="#outputs">所有產出物</a>
   <a class="nav-item" href="#config">設定檔</a>
   <a class="nav-item" href="#faq">FAQ</a>
+  <div class="nav-section">延伸閱讀</div>
+  <a class="nav-item" href="#references">相關資源</a>
 </nav>
 
 <!-- Main -->
@@ -169,6 +180,17 @@
       <span class="chip">輸出 <b>API Plan + 程式碼</b></span>
     </div>
   </div>
+
+  <!-- 相關資源 -->
+  <div class="section" id="references">
+    <h2>🔗 相關資源</h2>
+    <div class="ref-card">
+      <div class="ref-title"><a href="https://spark.entire.vc/skills/ag-framework-migration-legacy-modernize" target="_blank" rel="noopener">Legacy Code Modernization Workflow</a></div>
+      <div class="ref-url">spark.entire.vc/skills/ag-framework-migration-legacy-modernize</div>
+      <div class="ref-desc">使用 <strong style="color:var(--text)">Strangler Fig Pattern</strong> 協調遺留系統現代化的 5 階段工作流程 Skill。涵蓋技術債評估與風險分析、Contract Testing 建立、增量遷移實施（第一波元件現代化）、性能驗證與漸進式推出監控，以及遷移完成後的舊元件停用與知識轉移。與本 Skill 採用相同理論基礎（Strangler Fig Pattern），提供語言中立的通用型遷移框架參考。</div>
+    </div>
+  </div>
+
 
   <!-- 四大階段 -->
   <div class="section">
