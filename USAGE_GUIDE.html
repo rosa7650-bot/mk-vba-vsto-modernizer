@@ -303,6 +303,9 @@ claude</pre></div>
     <h2><span class="p1b">Phase 1</span> Discovery — 自動執行</h2>
     <p style="color:var(--muted);margin-bottom:1rem">Claude 自動提取並分析所有 VBA 模組，不需要任何操作。</p>
 
+    <div style="font-size:.75rem;color:var(--muted);background:rgba(255,255,255,.03);border:1px dashed var(--border);border-radius:6px;padding:.4rem .8rem;margin-bottom:.5rem">
+      📌 <b style="color:var(--text)">以下為範例參考</b>，實際數值依您的 VBA 系統分析結果自動產出，模組數、行數、資料庫類型皆會不同。
+    </div>
     <div class="chat">
       <div class="msg">
         <div class="avatar av-claude">AI</div>
@@ -313,8 +316,8 @@ claude</pre></div>
 - 6,240 行 VBA
 - 67 個 Public 程序</pre>
           <b>🗄️ 發現 2 個資料庫：</b>
-          <pre>- DB-1 Oracle（ADD_MONTHS、NVL 語法）→ 主資料庫
-- DB-2 SQL Server（CHARINDEX）→ 規則庫</pre>
+          <pre>- DB-1：（類型依您的系統，如 SQL Server / Oracle / PostgreSQL）→ 主資料庫
+- DB-2：（類型依您的系統）→ 規則庫</pre>
           <b>⚠️ 風險摘要：</b>
           <pre>- CRITICAL 模組：8 個
 - SQL 字串拼接：42 處（注入風險）
@@ -429,12 +432,13 @@ claude</pre></div>
           <div class="avatar av-claude">AI</div>
           <div class="bubble bubble-claude" style="font-size:.82rem">
             了解，P2 以 Stub 模式實作。<br><br>
+            <span style="font-size:.7rem;color:var(--muted)">📌 以下為範例參考，欄位名稱與資料內容依您的系統自動推導</span>
             <pre style="font-size:.75rem"># STUB: replace with real DB when available
 # stubs/ref_stub.py
 def get_customers(origin_district: str):
     return [
-        {"customer_id": 1, "customer_code": "GAP", "customer_name": "GAP INC."},
-        {"customer_id": 2, "customer_code": "DKS", "customer_name": "DICKS"}
+        {"id": 1, "code": "CUST_A", "name": "客戶名稱（範例）"},
+        {"id": 2, "code": "CUST_B", "name": "客戶名稱（範例）"}
     ]</pre>
             API 合約與真實版完全相同，STUB_STATUS.md 已登記。<br>
             資料庫可用後只需替換 <code>ref_stub.py</code> 為真實 repository，前端無需修改。
@@ -489,20 +493,23 @@ def get_customers(origin_district: str):
     </table>
 
     <h3>對話範例（P1）</h3>
+    <div style="font-size:.75rem;color:var(--muted);background:rgba(255,255,255,.03);border:1px dashed var(--border);border-radius:6px;padding:.4rem .8rem;margin-bottom:.5rem">
+      📌 <b style="color:var(--text)">以下為範例參考</b>，檔案名稱（db/xxx.py）與模組名稱依您的系統實際資料庫類型自動產出。
+    </div>
     <div class="chat">
       <div class="msg">
         <div class="avatar av-claude">AI</div>
         <div class="bubble bubble-claude">
           <b>P1 完成。</b><br><br>
           已產出：
-          <pre><span class="c-ok">✅</span> migrated/backend/db/oracle.py       ← cx_Oracle 連線池
-<span class="c-ok">✅</span> migrated/backend/db/sqlserver.py    ← pyodbc 連線池
+          <pre><span class="c-ok">✅</span> migrated/backend/db/db1.py          ← DB-1 連線池（類型依系統而定）
+<span class="c-ok">✅</span> migrated/backend/db/db2.py          ← DB-2 連線池（類型依系統而定）
 <span class="c-ok">✅</span> migrated/backend/core/response.py
 <span class="c-ok">✅</span> migrated/backend/.env.example
 
 <span class="c-warn">⚠ REVIEW_QUEUE 新增 1 筆：</span>
-  mdlDB.bas:12 — 原硬編碼 "Password=abc123"
-  → 已改為 os.getenv("ORACLE_PASSWORD")
+  連線模組.bas:12 — 原硬編碼密碼
+  → 已改為 os.getenv("DB_PASSWORD")
   請確認 .env 填入正確值</pre>
           繼續 P2？
         </div>
